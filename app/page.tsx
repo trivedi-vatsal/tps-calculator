@@ -31,16 +31,24 @@ export default function Home() {
   const customerBaseOptions = [100000, 250000, 500000, 1000000, 5000000];
   const transactionsPerDayOptions = [5, 10, 25, 50, 100];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const calculateResults = () => {
     const totalEvents = Math.ceil(customerBase * transactionsPerDay * 30);
     const perDay = Math.ceil(totalEvents / 30);
     const hourly = Math.ceil(perDay / 24);
     const perSecond = Math.ceil(hourly / 3600);
-    setResults({ totalEvents, perDay, hourly, perSecond });
+    return { totalEvents, perDay, hourly, perSecond };
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const results = calculateResults();
+    setResults(results);
   };
 
   const handleSave = () => {
+    // Trigger calculation before saving the result
+    const results = calculateResults();
+    setResults(results);
     // Save the results to history
     setHistory((prevHistory) => [
       ...prevHistory,
