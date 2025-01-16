@@ -33,7 +33,7 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const totalEvents = Math.ceil(customerBase * transactionsPerDay);
+    const totalEvents = Math.ceil(customerBase * transactionsPerDay * 30);
     const perDay = Math.ceil(totalEvents / 30);
     const hourly = Math.ceil(perDay / 24);
     const perSecond = Math.ceil(hourly / 3600);
@@ -200,7 +200,7 @@ export default function Home() {
                   onClick={handleSave}
                   className="w-1/2 bg-green-600 hover:bg-green-500 text-white"
                 >
-                  Save Results
+                  Save Result
                 </Button>
               </div>
             </form>
@@ -216,7 +216,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="bg-gray-800 text-white text-center">
                 <CardHeader>
-                  <CardTitle>Total Events</CardTitle>
+                  <CardTitle>Total Events per Month</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl">
@@ -287,7 +287,7 @@ export default function Home() {
                       Transactions per Day
                     </th>
                     <th className="px-4 py-2 border-b border-gray-600">
-                      Total Events
+                      Total Events per Month
                     </th>
                     <th className="px-4 py-2 border-b border-gray-600">
                       Events per Day
