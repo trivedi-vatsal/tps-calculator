@@ -5,8 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Trash } from "lucide-react";
+import { Trash, HelpCircle } from "lucide-react"; // Importing the help icon
 import { CSVLink } from "react-csv";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"; // Import ShadCN Dialog components
 
 type HistoryEntry = {
   customerBase: number;
@@ -46,10 +54,8 @@ export default function Home() {
   };
 
   const handleSave = () => {
-    // Trigger calculation before saving the result
     const results = calculateResults();
     setResults(results);
-    // Save the results to history
     setHistory((prevHistory) => [
       ...prevHistory,
       { customerBase, transactionsPerDay, ...results },
@@ -93,6 +99,40 @@ export default function Home() {
       <nav className="w-full bg-gray-900 p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-xl font-semibold">TPS Calculator</h1>
+          {/* Help Icon Button */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="text-white">
+                <HelpCircle size={24} />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>How to Use the Application</DialogTitle>
+                <DialogDescription>
+                  Here are the steps to use the TPS Calculator:
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <ul className="list-disc ml-6 mb-4">
+                  <li>
+                    Enter Input Values for: Customer Base (or select a
+                    predefined option).
+                  </li>
+                  <li>Transactions per Day (or select a predefined option).</li>
+                  <li>
+                    Click &quot;Calculate&quot; to compute: Total Events per Month, Events
+                    per Day, Hour, and Second.
+                  </li>
+                  <li>
+                    Click &quot;Save Result&quot; to save the calculation to your history.
+                  </li>
+                  <li>Manage History: Delete any unwanted entries.</li>
+                  <li>Export as CSV to download your history.</li>
+                </ul>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </nav>
 
@@ -124,6 +164,7 @@ export default function Home() {
             </p>
           </CardContent>
         </Card>
+
         {/* Calculator Card */}
         <Card className="bg-gray-800 text-white mb-6">
           <CardHeader>
