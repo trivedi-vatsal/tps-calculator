@@ -1,100 +1,343 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Trash } from "lucide-react"; // Importing Trash icon for delete action
+import { CSVLink } from "react-csv"; // Importing CSV export
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [customerBase, setCustomerBase] = useState(0);
+  const [transactionsPerDay, setTransactionsPerDay] = useState(0);
+  const [results, setResults] = useState({
+    totalEvents: 0,
+    perDay: 0,
+    hourly: 0,
+    perSecond: 0,
+  });
+  const [history, setHistory] = useState<any[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const customerBaseOptions = [100000, 250000, 500000, 1000000, 5000000];
+  const transactionsPerDayOptions = [5, 10, 25, 50, 100];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const totalEvents = Math.ceil(customerBase * transactionsPerDay);
+    const perDay = Math.ceil(totalEvents / 30);
+    const hourly = Math.ceil(perDay / 24);
+    const perSecond = Math.ceil(hourly / 3600);
+    setResults({ totalEvents, perDay, hourly, perSecond });
+  };
+
+  const handleSave = () => {
+    // Save the results to history
+    setHistory((prevHistory) => [
+      ...prevHistory,
+      { customerBase, transactionsPerDay, ...results },
+    ]);
+  };
+
+  const handleDelete = (index: number) => {
+    setHistory((prevHistory) => prevHistory.filter((_, i) => i !== index));
+  };
+
+  const handlePrefillCustomerBase = (value: number) => {
+    setCustomerBase(value);
+  };
+
+  const handlePrefillTransactionsPerDay = (value: number) => {
+    setTransactionsPerDay(value);
+  };
+
+  // Prepare CSV data without action column
+  const csvData = history.map(
+    ({
+      customerBase,
+      transactionsPerDay,
+      totalEvents,
+      perDay,
+      hourly,
+      perSecond,
+    }) => ({
+      customerBase,
+      transactionsPerDay,
+      totalEvents,
+      perDay,
+      hourly,
+      perSecond,
+    })
+  );
+
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      {/* Nav Bar */}
+      <nav className="w-full bg-gray-900 p-4 shadow-md">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-xl font-semibold">TPS Calculator</h1>
         </div>
+      </nav>
+
+      {/* Hero Banner */}
+      <div className="bg-black text-white py-16">
+        <div className="container mx-auto text-center">
+          <h1 className="text-4xl font-bold">
+            Leverage Transaction Data for Smarter Decisions
+          </h1>
+          <p className="mt-4 text-lg">
+            Use advanced metrics to guide your decisions and optimize
+            performance.
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="container mx-auto py-8 flex-1 px-2">
+        {/* Info Card */}
+        <Card className="bg-gray-800 text-white mb-6">
+          <CardHeader>
+            <CardTitle>About the Calculator</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Discover how your customer base and transaction volume translate
+              into actionable metrics. From total events to granular per-second
+              insights, we've got you covered.
+            </p>
+          </CardContent>
+        </Card>
+        {/* Calculator Card */}
+        <Card className="bg-gray-800 text-white mb-6">
+          <CardHeader>
+            <CardTitle>Transaction Calculator</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Customer Base Input */}
+                <div>
+                  <Label htmlFor="customerBase" className="block mb-1">
+                    Customer Base:
+                  </Label>
+                  <Input
+                    id="customerBase"
+                    type="number"
+                    value={customerBase}
+                    onChange={(e) => setCustomerBase(Number(e.target.value))}
+                    className="w-full bg-black text-white"
+                    required
+                  />
+                  {/* Prefill Pills for Customer Base */}
+                  <div className="flex flex-wrap space-x-4 mt-4 justify-center">
+                    {customerBaseOptions.map((option) => (
+                      <div className="pb-1" key={option}>
+                        <Button
+                          type="button"
+                          onClick={() => handlePrefillCustomerBase(option)}
+                          className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full"
+                        >
+                          {option.toLocaleString()}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Transactions per Day Input */}
+                <div>
+                  <Label htmlFor="transactionsPerDay" className="block mb-1">
+                    Transactions per Day:
+                  </Label>
+                  <Input
+                    id="transactionsPerDay"
+                    type="number"
+                    value={transactionsPerDay}
+                    onChange={(e) =>
+                      setTransactionsPerDay(Number(e.target.value))
+                    }
+                    className="w-full bg-black text-white"
+                    required
+                  />
+                  {/* Prefill Pills for Transactions per Day */}
+                  <div className="flex flex-wrap space-x-4 mt-4 justify-center">
+                    {transactionsPerDayOptions.map((option) => (
+                      <div className="pb-1" key={option}>
+                        <Button
+                          type="button"
+                          onClick={() =>
+                            handlePrefillTransactionsPerDay(option)
+                          }
+                          className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-full"
+                        >
+                          {option}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Calculate and Save Buttons */}
+              <div className="flex space-x-4 mt-4">
+                <Button
+                  type="submit"
+                  className="w-1/2 bg-gray-700 hover:bg-gray-600 text-white"
+                >
+                  Calculate
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  className="w-1/2 bg-green-600 hover:bg-green-500 text-white"
+                >
+                  Save Results
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Results Display - Responsive Grid for Cards */}
+        <Card className="bg-gray-800 text-white mb-6">
+          <CardHeader>
+            <CardTitle>Calculation Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-gray-800 text-white text-center">
+                <CardHeader>
+                  <CardTitle>Total Events</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl">
+                    {results.totalEvents.toLocaleString()}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 text-white text-center">
+                <CardHeader>
+                  <CardTitle>Events per Day</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl">{results.perDay.toLocaleString()}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 text-white text-center">
+                <CardHeader>
+                  <CardTitle>Events per Hour</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl">{results.hourly.toLocaleString()}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 text-white text-center">
+                <CardHeader>
+                  <CardTitle>Events per Second</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl">
+                    {results.perSecond.toLocaleString()}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* History Table Card */}
+        <Card className="bg-gray-800 text-white mb-6">
+          <CardHeader>
+            <CardTitle>Calculation History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between mb-4">
+              <CSVLink
+                data={csvData}
+                filename="transaction_calculation_history.csv"
+                className="bg-blue-600 text-white p-2 rounded"
+              >
+                Export as CSV
+              </CSVLink>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table
+                className="min-w-max text-center table-fixed border-separate border border-gray-700"
+                style={{ width: "100%" }}
+              >
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border-b border-gray-600">
+                      Customer Base
+                    </th>
+                    <th className="px-4 py-2 border-b border-gray-600">
+                      Transactions per Day
+                    </th>
+                    <th className="px-4 py-2 border-b border-gray-600">
+                      Total Events
+                    </th>
+                    <th className="px-4 py-2 border-b border-gray-600">
+                      Events per Day
+                    </th>
+                    <th className="px-4 py-2 border-b border-gray-600">
+                      Events per Hour
+                    </th>
+                    <th className="px-4 py-2 border-b border-gray-600">
+                      Events per Second
+                    </th>
+                    <th className="px-4 py-2 border-b border-gray-600">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((entry, index) => (
+                    <tr key={index}>
+                      <td className="px-4 py-2 border-b border-gray-600">
+                        {entry.customerBase}
+                      </td>
+                      <td className="px-4 py-2 border-b border-gray-600">
+                        {entry.transactionsPerDay}
+                      </td>
+                      <td className="px-4 py-2 border-b border-gray-600">
+                        {entry.totalEvents}
+                      </td>
+                      <td className="px-4 py-2 border-b border-gray-600">
+                        {entry.perDay}
+                      </td>
+                      <td className="px-4 py-2 border-b border-gray-600">
+                        {entry.hourly}
+                      </td>
+                      <td className="px-4 py-2 border-b border-gray-600">
+                        {entry.perSecond}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <Button
+                          type="button"
+                          onClick={() => handleDelete(index)}
+                          className="bg-red-600 hover:bg-red-500 text-white p-2 rounded-full"
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="w-full bg-gray-900 p-4 text-center">
+        <p className="text-gray-400">
+          Built with ❤️ and pride, by the MobiLytix Rewards Team!
+        </p>
       </footer>
     </div>
   );
