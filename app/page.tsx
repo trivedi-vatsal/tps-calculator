@@ -5,8 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Trash } from "lucide-react"; // Importing Trash icon for delete action
-import { CSVLink } from "react-csv"; // Importing CSV export
+import { Trash } from "lucide-react";
+import { CSVLink } from "react-csv";
+
+type HistoryEntry = {
+  customerBase: number;
+  transactionsPerDay: number;
+  totalEvents: number;
+  perDay: number;
+  hourly: number;
+  perSecond: number;
+};
 
 export default function Home() {
   const [customerBase, setCustomerBase] = useState(0);
@@ -17,7 +26,7 @@ export default function Home() {
     hourly: 0,
     perSecond: 0,
   });
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   const customerBaseOptions = [100000, 250000, 500000, 1000000, 5000000];
   const transactionsPerDayOptions = [5, 10, 25, 50, 100];
@@ -103,7 +112,7 @@ export default function Home() {
             <p>
               Discover how your customer base and transaction volume translate
               into actionable metrics. From total events to granular per-second
-              insights, we've got you covered.
+              insights, we&apos;ve got you covered.
             </p>
           </CardContent>
         </Card>
